@@ -12,7 +12,20 @@ server.get("/",(req,res) => {
   res.render('main.hbs');
 });
 
-server.post('/getweather', (req,res) => {
+server.get("/main",(req,res) => {
+  res.render('main.hbs');
+});
+
+server.get('/result', (req,res) => {
+res.render('result.hbs');
+
+});
+server.post('/form', (req,res) => {
+res.render('form.hbs');
+
+});
+
+server.post('/result', (req,res) => {
   //  run hmtl in another file
   const addr = req.body.address;
   const locationReq = `https://maps.googleapis.com/maps/api/geocode/json?address=${addr}&key=AIzaSyCXxsiK79-DXha-afMjHuLwohgNaSmRpXY`;
@@ -27,13 +40,13 @@ server.post('/getweather', (req,res) => {
 
   // return the data
   }) .then((response) =>  {
-    res.send(
-      {
-        address: addr,
-        summary:response.data.currently.summary,
-        temperature:(response.data.currently.temperature - 32) * 0.5556,
-      }
-    );
+
+
+    res.render('result.hbs', {
+      address: addr,
+      summary:response.data.currently.summary,
+      temperature:(response.data.currently.temperature - 32) * 0.5556,
+    })
 
       console.log("Summary: ",response.data.currently.summary);
       const temp = (response.data.currently.temperature - 32) * 0.5556;
