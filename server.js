@@ -3,6 +3,7 @@ const server = express();
 const hbs = require('hbs');
 const axios = require('axios');
 const bodyParser = require('body-parser');
+const filemgr = require('./filemgr');
 
 server.use(bodyParser.urlencoded( {extended: true } ));
 server.set('view engine','hbs');
@@ -20,12 +21,24 @@ server.get('/result', (req,res) => {
 res.render('result.hbs');
 
 });
+
+server.get('/historical', (req,res) => {
+  filemgr.getAllData().then((result) => {
+    res.render("historical.hbs",result);
+  }).catch((errorMessage) => {
+    console.log(errorMessage);
+  })
+})
+
+
 server.post('/form', (req,res) => {
 res.render('form.hbs');
 
 });
 
-server.post('/result', (req,res) => {
+
+
+server.post('/getweather', (req,res) => {
   //  run hmtl in another file
   const addr = req.body.address;
   const locationReq = `https://maps.googleapis.com/maps/api/geocode/json?address=${addr}&key=AIzaSyCXxsiK79-DXha-afMjHuLwohgNaSmRpXY`;
@@ -41,20 +54,26 @@ server.post('/result', (req,res) => {
   // return the data
   }) .then((response) =>  {
 
+    console.log("Summary temp: ",response.data.currently.summary);
+    const temp = (response.data.currently.temperature - 32) * 0.5556;
+    const temperature = temp.toFixed(2);
+    // Fix 2Decimal place
+    const tempString = `${temperature} Celsius`;
 
-    res.render('result.hbs', {
+    const weatherresult = {
       address: addr,
       summary:response.data.currently.summary,
-      temperature:(response.data.currently.temperature - 32) * 0.5556,
-    })
+      temperature: tempString,
+    };
+    console.log("Summary all: ", weatherresult);
+    filemgr.saveData(weatherresult).then((result) => {
+      res.render('result.hbs', weatherresult);
 
-      console.log("Summary: ",response.data.currently.summary);
-      const temp = (response.data.currently.temperature - 32) * 0.5556;
-      const temperature = temp.toFixed(2);
-      // Fix 2Decimal place
-      console.log(`${temperature} Celsius`);
-  }
-)
+    }).catch((errorMessage) => {
+      console.log('Some filemgr error');
+    });
+})
+
 
 .catch((error) => {
   console.log(error.code);
