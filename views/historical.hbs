@@ -17,8 +17,13 @@
 <div class="w3-row-padding w3-padding-64 w3-container">
   <div class="w3-content">
     <div class="w3-twothird w3-center">
+      <form action="/" method="post">
+      <button class="w3 button w3-line w3-large" type="submit" formaction="/delete"> Delete All Record  </button>
+      </form>
       <h5>
-        {{result}}
+        <table class="w3-table-all w3-centered">
+        {{#list items}} <tr> <td>{{address}} </td> <td>{{summary}} </td> <td>{{temperature}} </td> </tr>{{/list}}
+      </table>
       </h5>
     </div>
 
